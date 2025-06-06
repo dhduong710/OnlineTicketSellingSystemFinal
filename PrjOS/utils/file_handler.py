@@ -31,4 +31,3 @@ def safe_write_seats(data, filename="PrjOS/data/seats.json"):
     with lock:
         with open(filename, 'w') as f:
             json.dump(data, f)
-

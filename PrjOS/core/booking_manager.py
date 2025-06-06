@@ -49,4 +49,3 @@ def cancel_seat(show_id, seat_id, username):
             return True
         else:
             return False
-

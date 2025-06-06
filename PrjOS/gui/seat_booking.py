@@ -113,6 +113,8 @@ def show_seat_booking(root, username, movie_title):
                     btn.config(bg="gray", state="disabled")
             else:
                 btn.config(bg="SystemButtonFace", state="normal", command=lambda s=seat_id: toggle_seat(s))
+        booked_seats.clear()
+        booked_seats.update(updated_booked)
 
         update_id = root.after(1000, update_seat_status)
 
