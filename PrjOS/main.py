@@ -1,4 +1,5 @@
 import tkinter as tk
+from gui.login_screen import show_login_screen
 """
 This script initializes and runs the main application window for the Online Ticket Selling System.
 It uses the tkinter library to create the GUI and imports the `show_login_screen` function 
@@ -9,7 +10,7 @@ Modules:
 Usage:
     Run this script directly to start the application.
 """
-from gui.login_screen import show_login_screen
+
 
 if __name__ == "__main__":
     root = tk.Tk()
