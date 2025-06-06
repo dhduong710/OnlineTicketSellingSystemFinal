@@ -1,51 +1,63 @@
-import threading
+
+import json
 """
+booking_manager.py
 
 This module provides functionality to manage seat bookings for shows. It includes
-functions to book a seat and cancel a seat, ensuring thread safety using a lock.
+functions to book a seat and cancel a seat for a specific show. The seat data is
+stored in a JSON file, and file locking is used to ensure safe concurrent access.
 
 Functions:
-    book_seat(show_id, seat_id, username):
-        Attempts to book a seat for a specific show. If the seat is already booked,
-        the function returns False. Otherwise, it books the seat and returns True.
+----------
+- book_seat(show_id, seat_id, username):
+    Attempts to book a seat for a given show. If the seat is already booked, the
+    function returns False. Otherwise, it books the seat and returns True.
 
-    cancel_seat(show_id, seat_id, username):
-        Cancels a seat booking for a specific show if the seat is booked by the
-        specified user. Returns True if the cancellation is successful, otherwise False.
+- cancel_seat(show_id, seat_id, username):
+    Cancels a seat booking for a given show if the seat is booked by the specified
+    user. Returns True if the cancellation is successful, otherwise returns False.
 
 Dependencies:
-    - utils.file_handler: Provides `read_json` and `write_json` functions for reading
-      and writing JSON data.
-    - config.settings: Provides the `SEATS_FILE` constant, which specifies the path
-      to the JSON file storing seat booking data.
-
-Thread Safety:
-    A threading lock is used to ensure that seat booking and cancellation operations
-    are thread-safe.
+-------------
+- json: Used for reading and writing seat data in JSON format.
+- portalocker: Used for file locking to ensure safe concurrent access.
+- config.settings: Contains the SEATS_FILE constant, which specifies the path to
+  the JSON file storing seat data.
 """
-from utils.file_handler import read_json, write_json
+import portalocker
 from config.settings import SEATS_FILE
 
-lock = threading.Lock()
-
 def book_seat(show_id, seat_id, username):
-    with lock:
-        data = read_json(SEATS_FILE)
+    with open(SEATS_FILE, 'r+') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)
+        data = json.load(f)
+
         if show_id not in data:
             data[show_id] = {}
+
         if data[show_id].get(seat_id) is None:
             data[show_id][seat_id] = username
-            write_json(SEATS_FILE, data)
+            f.seek(0)
+            f.truncate()
+            json.dump(data, f, indent=4)
+            portalocker.unlock(f)
             return True
         else:
+            portalocker.unlock(f)
             return False
 
 def cancel_seat(show_id, seat_id, username):
-    with lock:
-        data = read_json(SEATS_FILE)
+    with open(SEATS_FILE, 'r+') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)
+        data = json.load(f)
+
         if show_id in data and data[show_id].get(seat_id) == username:
             del data[show_id][seat_id]
-            write_json(SEATS_FILE, data)
+            f.seek(0)
+            f.truncate()
+            json.dump(data, f, indent=4)
+            portalocker.unlock(f)
             return True
         else:
+            portalocker.unlock(f)
             return False
