@@ -119,7 +119,7 @@ def show_login_screen(root):
     def open_register_window():
         register_window = tk.Toplevel(root)
         register_window.title("Register")
-        register_window.geometry("340x220")
+        register_window.geometry("340x280")
         register_window.configure(bg="#393E46")
 
         tk.Label(register_window, text="Register New Account", font=("Arial", 15, "bold"), fg="#FFD369", bg="#393E46").pack(pady=(18, 8))

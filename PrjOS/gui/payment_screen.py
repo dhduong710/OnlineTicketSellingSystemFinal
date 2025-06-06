@@ -34,17 +34,23 @@ def show_payment_screen(root, username, movie_title, seat_ids, seats_to_cancel):
     root.geometry("800x600")
 
     def pay_seats():
-        success = True
+        booked = []
+        failed = []
+
         for seat_id in seat_ids:
             result = book_seat(movie_title, seat_id, username)
-            if not result:
-                messagebox.showerror("Seat Unavailable", f"Seat {seat_id} has already been booked.")
-                success = False
-                break
+            if result:
+                booked.append(seat_id)
+            else:
+                failed.append(seat_id)
 
-        if success:
-            messagebox.showinfo("Payment", f"Payment successful for seats: {', '.join(seat_ids)}")
-            show_seat_booking(root, username, movie_title)
+        if booked:
+            messagebox.showinfo("Payment Successful", f"Successfully booked seats: {', '.join(booked)}")
+
+        if failed:
+            messagebox.showwarning("Some Seats Unavailable", f"The following seats are already booked: {', '.join(failed)}")
+
+        show_seat_booking(root, username, movie_title)
 
     def cancel_seats():
         cancelled = []
